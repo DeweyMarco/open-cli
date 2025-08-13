@@ -1,0 +1,16 @@
+{
+  "name": "open-cli",
+  "version": "1.0.0",
+  "description": "A minimal interactive REPL-style CLI tool for multiple AI models",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": ["cli", "ai", "repl", "gemini", "claude"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "readline": "^1.3.0"
+  }
+}

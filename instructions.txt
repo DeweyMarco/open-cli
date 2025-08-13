@@ -1,0 +1,28 @@
+You are a senior Node.js developer. Build me a minimal interactive REPL-style CLI tool in Node.js that can use any model the user specifies in the prompt as the backend.
+
+Requirements:
+1. Use modern JavaScript (ESM syntax) and run with `node index.js`.
+2. At startup, print "Open CLI (press Ctrl-C two times to quit)".
+3. Load API keys for multiple models from environment variables:
+   - GEMINI_API_KEY for Google Gemini
+   - CLAUDE_API_KEY for Anthropic Claude
+   (You may assume the same pattern for other models if added later.)
+4. In a loop:
+   - Prompt the user with `You: `.
+   - The user types something like `@Gemini fix this file @file.txt` or `@Claude write unit tests for @function.py`.
+   - Detect which model was requested (based on the `@ModelName` mention).
+   - Send the user’s message **and the conversation history for that model** to the correct API endpoint.
+   - Print the model’s response prefixed with `Gemini:` or `Claude:` depending on the model used.
+5. Stop if the user presses Ctrl-C twice.
+6. Keep the code minimal — no extra features beyond the requirements.
+7. Use the official REST API endpoints for text generation:
+   - For Gemini: Google Generative Language REST API (model `gemini-1.5-flash`).
+   - For Claude: Anthropic Messages API (model `claude-3-opus-20240229`).
+8. Maintain separate conversation histories for each model so each can keep context independently.
+9. Return complete, runnable code.
+
+After providing the code, also explain:
+- How to install dependencies.
+- How to set API keys in environment variables.
+- How to run the tool.
+
