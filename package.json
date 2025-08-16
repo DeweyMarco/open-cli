@@ -1,16 +1,22 @@
 {
   "name": "open-cli",
   "version": "1.0.0",
-  "description": "A minimal interactive REPL-style CLI tool for multiple AI models",
-  "main": "index.js",
+  "description": "Multi-model AI development assistant with unified tool system",
   "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "start": "node index.js"
+    "start": "npm run start --workspace=packages/cli",
+    "build": "npm run build --workspaces",
+    "test": "npm run test --workspaces",
+    "dev": "npm run dev --workspace=packages/cli"
   },
-  "keywords": ["cli", "ai", "repl", "gemini", "claude"],
+  "keywords": ["cli", "ai", "multi-model", "development", "tools"],
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "readline": "^1.3.0"
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
   }
 }
