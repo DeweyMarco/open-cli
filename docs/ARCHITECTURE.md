@@ -1,412 +1,496 @@
-# Architecture Guide
+# Enterprise Architecture Guide
 
-This document provides an in-depth look at Open CLI's architecture, design decisions, and implementation patterns.
+This document details Open CLI's production-grade architecture, enterprise patterns, and professional implementation decisions.
 
-## 🏗️ System Overview
+## 🏗️ Enterprise System Overview
 
-Open CLI is built as a **modular monorepo** with a clear separation between the CLI frontend and the core backend. This architecture enables:
-
-- **Extensibility**: Easy to add new tools and models
-- **Maintainability**: Clear separation of concerns
-- **Testability**: Individual components can be tested in isolation
-- **Reusability**: Core functionality can be used in other applications
+Open CLI implements a **hexagonal architecture** with enterprise patterns including structured logging, comprehensive error handling, security hardening, and professional configuration management.
 
 ```
-┌─────────────────────────────────────────┐
-│                 CLI Layer               │
-│  ┌─────────────┐  ┌─────────────────┐   │
-│  │ CLI Interface│  │  Model Detector │   │
-│  └─────────────┘  └─────────────────┘   │
-│           │               │             │
-│  ┌─────────────────────────────────────┐ │
-│  │         Core Manager                │ │
-│  └─────────────────────────────────────┘ │
-└─────────────────┬───────────────────────┘
-                  │
-┌─────────────────┴───────────────────────┐
-│                Core Layer               │
-│  ┌─────────────┐  ┌─────────────────┐   │
-│  │Tool Registry│  │  Model Registry │   │
-│  └─────────────┘  └─────────────────┘   │
-│  ┌─────────────┐  ┌─────────────────┐   │
-│  │Safety Manager│  │Built-in Tools   │   │
-│  └─────────────┘  └─────────────────┘   │
-└─────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│                          CLI Layer                              │
+│  ┌─────────────┐  ┌──────────────┐  ┌─────────────────────────┐ │
+│  │     CLI     │  │Model Detector│  │   Signal Handling       │ │
+│  │  Interface  │  │   & Parser   │  │   & Error Recovery      │ │
+│  └─────────────┘  └──────────────┘  └─────────────────────────┘ │
+└─────────────────────┬───────────────────────────────────────────┘
+                      │
+┌─────────────────────┴───────────────────────────────────────────┐
+│                      Core Manager                               │
+│  Professional orchestration with error handling & monitoring   │
+└─────────────────────┬───────────────────────────────────────────┘
+                      │
+┌─────────────────────┴───────────────────────────────────────────┐
+│                   Enterprise Core Layer                        │
+│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌───────────┐  │
+│  │Configuration│ │   Logging   │ │    Error    │ │ Security  │  │
+│  │ Management  │ │  Framework  │ │  Hierarchy  │ │ Hardening │  │
+│  └─────────────┘ └─────────────┘ └─────────────┘ └───────────┘  │
+│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌───────────┐  │
+│  │    Model    │ │    Tool     │ │    Rate     │ │   Input   │  │
+│  │ Abstraction │ │  Execution  │ │  Limiting   │ │Validation │  │
+│  └─────────────┘ └─────────────┘ └─────────────┘ └───────────┘  │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
-## 📦 Package Structure
+## 📦 Professional Package Structure
 
-### Monorepo Organization
+### Enterprise Monorepo Organization
 
 ```
 open-cli/
 ├── packages/
-│   ├── core/              # Core backend functionality
-│   └── cli/               # CLI frontend interface
-├── docs/                  # Documentation
-├── package.json           # Workspace configuration
-├── README.md              # Main documentation
-├── CONTRIBUTING.md        # Contribution guidelines
-└── CLAUDE.md             # Claude Code guidance
+│   ├── core/                    # Enterprise core business logic
+│   │   ├── src/
+│   │   │   ├── config/          # Configuration management system
+│   │   │   │   ├── ConfigSchema.ts      # Zod validation schemas
+│   │   │   │   ├── ConfigLoader.ts      # Multi-source config loading
+│   │   │   │   └── ConfigManager.ts     # Centralized config access
+│   │   │   ├── errors/          # Professional error hierarchy
+│   │   │   │   ├── BaseError.ts         # Foundation error class
+│   │   │   │   ├── DomainErrors.ts      # Specific error types
+│   │   │   │   └── ErrorUtils.ts        # Error utilities & retry
+│   │   │   ├── logging/         # Structured logging framework
+│   │   │   │   └── Logger.ts            # Professional logger
+│   │   │   ├── security/        # Security hardening layer
+│   │   │   │   ├── SecureSafetyManager.ts   # Path traversal protection
+│   │   │   │   ├── RateLimiter.ts           # Rate limiting algorithms
+│   │   │   │   └── InputValidator.ts       # Input sanitization
+│   │   │   ├── models/          # Type-safe AI model integrations
+│   │   │   │   ├── api-types/           # Comprehensive API types
+│   │   │   │   │   ├── GeminiTypes.ts   # Complete Gemini types
+│   │   │   │   │   └── ClaudeTypes.ts   # Complete Claude types
+│   │   │   │   ├── ClaudeClient.ts      # Enterprise Claude client
+│   │   │   │   ├── GeminiClient.ts      # Enterprise Gemini client
+│   │   │   │   └── ModelRegistry.ts     # Model management
+│   │   │   ├── tools/           # Tool execution framework
+│   │   │   │   ├── built-in/            # Core development tools
+│   │   │   │   ├── BaseTool.ts          # Tool foundation
+│   │   │   │   └── ToolRegistry.ts      # Tool management
+│   │   │   └── safety/          # Legacy safety (deprecated)
+│   │   └── tsconfig.json        # Strict TypeScript config
+│   └── cli/                     # Professional CLI interface
+│       ├── src/
+│       │   ├── core/            # CLI orchestration
+│       │   │   └── CoreManager.ts       # Professional orchestration
+│       │   ├── utils/           # CLI utilities
+│       │   │   └── ModelDetector.ts     # Robust input parsing
+│       │   └── index.ts         # CLI entry point with signal handling
+│       └── tsconfig.json
+├── .eslintrc.json              # Professional ESLint configuration
+├── .prettierrc.json            # Code formatting standards
+├── jest.config.js              # Testing infrastructure
+├── jest.setup.js               # Test utilities and globals
+└── package.json                # Workspace configuration
 ```
 
-### Core Package (`packages/core/`)
+## 🏛️ Enterprise Design Patterns
 
-The core package contains all the business logic and provides a clean API for the CLI layer.
+### 1. Hexagonal Architecture (Ports & Adapters)
 
-```
-packages/core/src/
-├── tools/                 # Tool system
-│   ├── BaseTool.ts       # Abstract base class
-│   ├── ToolRegistry.ts   # Tool management
-│   ├── types.ts          # Tool type definitions
-│   └── built-in/         # Built-in tool implementations
-│       ├── ReadFileTool.ts
-│       ├── WriteFileTool.ts
-│       └── ListDirectoryTool.ts
-├── models/               # Model system
-│   ├── types.ts          # Model interfaces
-│   ├── ModelRegistry.ts  # Model management
-│   ├── GeminiClient.ts   # Google Gemini client
-│   └── ClaudeClient.ts   # Anthropic Claude client
-├── safety/               # Safety framework
-│   ├── SafetyManager.ts  # File access validation
-│   └── ConfirmationManager.ts # User confirmation
-└── index.ts              # Public API exports
-```
-
-### CLI Package (`packages/cli/`)
-
-The CLI package provides the user interface and orchestrates the core functionality.
-
-```
-packages/cli/src/
-├── core/                 # CLI orchestration
-│   └── CoreManager.ts    # Main orchestration class
-├── utils/                # CLI utilities
-│   └── ModelDetector.ts  # @model syntax parsing
-└── index.ts              # CLI entry point
-```
-
-## 🛠️ Core Design Patterns
-
-### Tool System Architecture
-
-The tool system follows the **Command Pattern** with additional safety and validation layers.
-
-#### Tool Lifecycle
-
-```
-1. Registration    → Tool registered in ToolRegistry
-2. Schema Export   → Tool schema provided to AI models  
-3. Invocation      → AI model requests tool execution
-4. Validation      → Parameters validated with Zod
-5. Safety Check    → File paths and operations validated
-6. Confirmation    → User confirmation for destructive operations
-7. Execution       → Tool executed with abort signal
-8. Result          → Results returned to AI model and user
-```
-
-#### Tool Class Hierarchy
+**Core Business Logic** is isolated from external concerns:
 
 ```typescript
-interface Tool<TParams, TResult>
-    ↑
-BaseTool<TParams, TResult> (abstract)
-    ↑
-ReadFileTool, WriteFileTool, ListDirectoryTool, etc.
-```
-
-**Key Design Decisions:**
-
-- **Generic Types**: Tools are typed with parameter and result types for type safety
-- **Zod Validation**: Runtime parameter validation with compile-time type inference
-- **Invocation Pattern**: Separate invocation objects for stateful execution
-- **Safety First**: All file operations go through safety validation
-
-### Model System Architecture
-
-The model system uses the **Strategy Pattern** to abstract different AI providers.
-
-#### Model Client Interface
-
-```typescript
+// Port (Interface)
 interface ModelClient {
-  readonly name: string;
-  sendMessage(messages, tools?, signal?): Promise<ModelResponse>;
-  supportsTools(): boolean;
+  sendMessage(messages: ModelMessage[]): Promise<ModelResponse>;
+}
+
+// Adapter (Implementation) 
+class GeminiClient implements ModelClient {
+  // Gemini-specific implementation details
+}
+
+class ClaudeClient implements ModelClient {  
+  // Claude-specific implementation details
 }
 ```
 
 **Benefits:**
-- **Provider Agnostic**: Same interface for all AI providers
-- **Tool Integration**: Unified tool calling across models
-- **Extensible**: Easy to add new model providers
-- **Testable**: Can mock model clients for testing
+- **Testability**: Easy to mock external dependencies
+- **Flexibility**: Swap implementations without changing business logic
+- **Isolation**: Core logic unaffected by external API changes
 
-#### Message Flow
+### 2. Domain-Driven Design (DDD)
 
-```
-User Input → ModelDetector → CoreManager → ModelClient → AI API
-                                   ↑           ↓
-                              ToolRegistry ← ToolCalls
-                                   ↓           ↑
-                              ToolExecution → Results
-```
-
-### Safety Framework
-
-The safety framework implements **Defense in Depth** security principles.
-
-#### Safety Layers
-
-1. **Path Validation**: Prevents directory traversal attacks
-2. **Root Directory Restriction**: Limits file access to project directory
-3. **File Size Limits**: Prevents resource exhaustion
-4. **Extension Filtering**: Optional file type restrictions
-5. **User Confirmation**: Required approval for destructive operations
-
-#### Safety Manager Validation Process
+**Error Hierarchy** reflects business domains:
 
 ```typescript
-async validateFile(path: string, operation: 'read' | 'write') {
-  // 1. Path validation (directory traversal prevention)
-  const pathResult = this.validateFilePath(path);
-  
-  // 2. Extension validation (if configured)
-  const extResult = this.validateFileExtension(path);
-  
-  // 3. Size validation (for existing files)
-  const sizeResult = await this.validateFileSize(path);
-  
-  return { valid: allValid, safePath: resolvedPath };
-}
-```
-
-## 🔄 Data Flow Architecture
-
-### Request Processing Flow
-
-```
-┌─────────────┐    ┌──────────────┐    ┌─────────────┐
-│ User Input  │───▶│ ModelDetector│───▶│ CoreManager │
-└─────────────┘    └──────────────┘    └─────────────┘
-                                              │
-┌─────────────┐    ┌──────────────┐    ┌─────┴─────┐
-│Tool Results │◀───│ ToolRegistry │◀───│ModelClient│
-└─────────────┘    └──────────────┘    └───────────┘
-       │                   │
-       ▼                   ▼
-┌─────────────┐    ┌──────────────┐
-│User Display │    │SafetyManager │
-└─────────────┘    └──────────────┘
-```
-
-### Conversation Management
-
-Each model maintains separate conversation history:
-
-```typescript
-conversations: Map<string, ModelMessage[]> = {
-  'gemini' => [
-    { role: 'user', content: 'Hello' },
-    { role: 'assistant', content: 'Hi there!' },
-    { role: 'user', content: 'List files' },
-    { role: 'assistant', content: 'I'll list...', toolCalls: [...] },
-    { role: 'tool', content: 'file1.txt...', toolCallId: '...' }
-  ],
-  'claude' => [
-    { role: 'user', content: 'Read package.json' },
-    // ... separate history
-  ]
-}
-```
-
-## 🏛️ Design Principles
-
-### 1. Safety First
-
-Every operation that could affect the file system goes through safety validation:
-
-- **Principle**: Never trust user input
-- **Implementation**: SafetyManager validates all file operations
-- **Example**: Reading `/etc/passwd` is blocked, `../../../secret.txt` is prevented
-
-### 2. Type Safety
-
-Strong typing throughout the system prevents runtime errors:
-
-- **Principle**: Fail fast with clear error messages
-- **Implementation**: TypeScript strict mode + Zod runtime validation
-- **Example**: Tool parameters are validated at both compile time and runtime
-
-### 3. Extensibility
-
-New tools and models can be added without modifying core logic:
-
-- **Principle**: Open for extension, closed for modification
-- **Implementation**: Plugin-style architecture with registries
-- **Example**: Adding a new tool requires implementing BaseTool interface
-
-### 4. Separation of Concerns
-
-Clear boundaries between different system components:
-
-- **Principle**: Each component has a single responsibility
-- **Implementation**: CLI ↔ Core ↔ Models/Tools separation
-- **Example**: CLI handles UI, Core handles orchestration, Tools handle operations
-
-### 5. Testability
-
-Components can be tested in isolation:
-
-- **Principle**: Dependencies are injected, not hard-coded
-- **Implementation**: Constructor injection and interface-based design
-- **Example**: CoreManager accepts injected registries for testing
-
-## 🔧 Implementation Details
-
-### Tool Parameter Validation
-
-Tools use Zod schemas for runtime validation with TypeScript integration:
-
-```typescript
-const ReadFileParams = z.object({
-  path: z.string().describe('Absolute path to the file'),
-  offset: z.number().optional().describe('Starting line number'),
-  limit: z.number().optional().describe('Maximum lines to read')
-});
-
-type ReadFileParams = z.infer<typeof ReadFileParams>;
-```
-
-**Benefits:**
-- **Runtime Safety**: Invalid parameters are caught before execution
-- **Type Inference**: TypeScript types derived from schemas
-- **Documentation**: Descriptions provide context for AI models
-- **Validation Messages**: Clear error messages for debugging
-
-### Model API Abstraction
-
-Each model client handles the specifics of its API while presenting a unified interface:
-
-#### Gemini Implementation Details
-
-```typescript
-// Convert internal format to Gemini API format
-private convertMessages(messages: ModelMessage[]): GeminiMessage[] {
-  return messages.map(msg => ({
-    role: msg.role === 'assistant' ? 'model' : 'user',
-    parts: [{ text: msg.content }]
-  }));
-}
-```
-
-#### Claude Implementation Details
-
-```typescript
-// Convert internal format to Claude API format  
-private convertMessages(messages: ModelMessage[]): ClaudeMessage[] {
-  return messages.map(msg => ({
-    role: msg.role === 'assistant' ? 'assistant' : 'user',
-    content: msg.content
-  }));
-}
-```
-
-### Error Handling Strategy
-
-Comprehensive error handling with user-friendly messages:
-
-```typescript
-// Tool errors are typed and descriptive
-class ToolError extends Error {
-  constructor(
-    message: string,
-    public readonly type: ToolErrorType,
-    public readonly details?: any
-  ) {
-    super(message);
+// Domain-specific errors
+class ApiError extends BaseError {
+  constructor(message: string, statusCode: number, apiName: string) {
+    super(message, 'API_ERROR', ErrorCategory.EXTERNAL_SERVICE);
   }
 }
 
-// Safety errors explain what was blocked and why
-if (!validation.valid) {
-  throw new ToolError(
-    `File access denied: ${validation.reason}`,
-    ToolErrorType.PERMISSION_ERROR,
-    { requestedPath: filePath, rootDirectory: this.config.rootDirectory }
-  );
+class SecurityError extends BaseError {
+  constructor(message: string, securityViolation: string) {
+    super(message, 'SECURITY_ERROR', ErrorCategory.AUTHORIZATION);
+  }
 }
 ```
 
-## 🚀 Performance Considerations
+### 3. Dependency Injection & Inversion of Control
 
-### Lazy Loading
+**Professional dependency management:**
 
-- **Tool Registration**: Tools are instantiated once and reused
-- **Model Clients**: Created on-demand when first accessed
-- **File Operations**: Streamed for large files (future enhancement)
+```typescript
+export class CoreManager {
+  constructor(
+    private readonly config: CoreConfig,
+    private readonly logger: ILogger,
+    private readonly securityManager: SecureSafetyManager,
+    private readonly rateLimiter: RateLimiter
+  ) {
+    // Dependencies injected, not created internally
+  }
+}
+```
+
+### 4. Observer Pattern for Configuration
+
+**Event-driven configuration updates:**
+
+```typescript
+configManager.on('configChanged', (event: ConfigChangeEvent) => {
+  logger.info('Configuration updated', {
+    changedKeys: Object.keys(event.changes),
+    source: event.source
+  });
+});
+```
+
+### 5. Strategy Pattern for Rate Limiting
+
+**Multiple algorithm implementations:**
+
+```typescript
+enum RateLimitAlgorithm {
+  TOKEN_BUCKET = 'token_bucket',
+  SLIDING_WINDOW = 'sliding_window', 
+  FIXED_WINDOW = 'fixed_window'
+}
+
+class RateLimiter {
+  constructor(algorithm: RateLimitAlgorithm) {
+    this.strategy = this.createStrategy(algorithm);
+  }
+}
+```
+
+## 🔒 Security Architecture
+
+### Defense in Depth Strategy
+
+**Multiple security layers protect against various attack vectors:**
+
+#### Layer 1: Input Validation & Sanitization
+```typescript
+class InputValidator {
+  validateString(input: string, rules: ValidationRule): ValidationResult {
+    // Comprehensive validation against injection attacks
+    const securityResult = this.checkForMaliciousContent(input);
+    const sanitized = this.defaultSanitizer(input);
+    return { valid: errors.length === 0, sanitized, errors, warnings };
+  }
+}
+```
+
+#### Layer 2: Path Traversal Protection  
+```typescript
+class SecureSafetyManager {
+  async validateFilePath(requestedPath: string): Promise<SecurityValidationResult> {
+    // Canonical path resolution prevents symlink attacks
+    const canonicalPath = await realpath(path.resolve(requestedPath));
+    const canonicalRoot = await realpath(path.resolve(this.rootDirectory));
+    
+    if (!this.isWithinRoot(canonicalPath, canonicalRoot)) {
+      return { allowed: false, reason: 'Path outside allowed root' };
+    }
+  }
+}
+```
+
+#### Layer 3: Rate Limiting
+```typescript
+class RateLimiter {
+  async consume(key: string): Promise<void> {
+    const result = this.checkLimit(key);
+    if (!result.allowed) {
+      throw new RateLimitError(
+        `Rate limit exceeded`,
+        result.retryAfter,
+        'api_requests'
+      );
+    }
+  }
+}
+```
+
+#### Layer 4: Content Size Protection
+```typescript
+validateContentSize(content: string): SecurityValidationResult {
+  const size = Buffer.byteLength(content, 'utf-8');
+  if (size > this.config.maxRequestSize) {
+    return { 
+      allowed: false, 
+      reason: `Content size exceeds limit (${size} > ${this.config.maxRequestSize})` 
+    };
+  }
+}
+```
+
+## 📊 Observability Architecture
+
+### Structured Logging Framework
+
+**Professional logging with correlation and context:**
+
+```typescript
+class Logger implements ILogger {
+  private log(level: LogLevel, message: string, error?: Error, metadata?: Record<string, unknown>) {
+    const entry: LogEntry = {
+      timestamp: new Date().toISOString(),
+      level,
+      message,
+      context: this.config.context,
+      metadata,
+      error,
+      correlationId: this.generateCorrelationId()
+    };
+    
+    this.output(entry);
+  }
+}
+```
+
+**Usage throughout the system:**
+```typescript
+// Contextual logging with structured metadata
+this.logger.info('API request started', {
+  model: 'gemini',
+  messageCount: messages.length,
+  toolsAvailable: tools?.length ?? 0,
+  requestId: correlationId
+});
+
+this.logger.error('API request failed', error, {
+  model: 'gemini',
+  statusCode: response.status,
+  retryAttempt: attempt
+});
+```
+
+### Error Correlation & Tracking
+
+**Professional error handling with correlation:**
+
+```typescript
+class BaseError extends Error {
+  public readonly correlationId: string;
+  public readonly timestamp: Date;
+  
+  constructor(message: string, code: string, category: ErrorCategory) {
+    super(message);
+    this.correlationId = this.generateCorrelationId();
+    this.timestamp = new Date();
+  }
+  
+  toJSON(): SerializableError {
+    return {
+      name: this.name,
+      message: this.message,
+      code: this.code,
+      correlationId: this.correlationId,
+      timestamp: this.timestamp.toISOString()
+    };
+  }
+}
+```
+
+### Configuration Management
+
+**Centralized configuration with validation:**
+
+```typescript
+class ConfigManager {
+  async initialize(sources?: ConfigSource[]): Promise<void> {
+    const result = await this.loader.loadConfig(sources);
+    
+    // Validate configuration
+    const parseResult = AppConfigSchema.safeParse(result.config);
+    if (!parseResult.success) {
+      throw new ConfigurationError('Configuration validation failed');
+    }
+    
+    this.logger.info('Configuration loaded successfully', {
+      sources: result.sources,
+      warningCount: result.warnings.length
+    });
+  }
+}
+```
+
+## 🚀 Performance Architecture
+
+### Lazy Loading & Resource Management
+
+**Efficient resource utilization:**
+
+```typescript
+class ModelRegistry {
+  private clients = new Map<string, ModelClient>();
+  
+  getModel(name: string): ModelClient | undefined {
+    if (!this.clients.has(name)) {
+      // Lazy initialization on first access
+      this.clients.set(name, this.createModel(name));
+    }
+    return this.clients.get(name);
+  }
+}
+```
+
+### Connection Pooling & Retry Logic
+
+**Professional API client implementation:**
+
+```typescript
+class GeminiClient {
+  private async sendMessageWithRetry(): Promise<Result<ModelResponse>> {
+    return ErrorUtils.retry(
+      () => this.sendMessageInternal(),
+      {
+        maxAttempts: 3,
+        baseDelayMs: 1000,
+        backoffMultiplier: 2,
+        retryableErrors: [NetworkError, ApiError]
+      }
+    );
+  }
+}
+```
 
 ### Memory Management
 
-- **Conversation History**: Stored in memory, could be persisted for large conversations
-- **Tool Results**: Processed immediately, not stored long-term
-- **Schema Caching**: Tool schemas cached after first generation
+**Controlled resource usage:**
 
-### Concurrency
-
-- **AbortSignal**: All async operations support cancellation
-- **Single-threaded**: Node.js event loop handles concurrency
-- **Tool Execution**: One tool at a time per conversation
-
-## 🔮 Future Architecture Enhancements
-
-### Phase 2: Advanced Tools
-
-```
-packages/core/src/tools/
-├── built-in/
-│   ├── file/           # File operations
-│   ├── git/            # Git integration  
-│   ├── shell/          # Shell commands
-│   └── code/           # Code analysis
-├── external/           # External tool integrations
-└── custom/             # User-defined tools
+```typescript
+class RateLimiter {
+  private cleanup(): void {
+    const now = Date.now();
+    for (const [key, entry] of this.entries) {
+      if (now - entry.lastRequest > this.config.windowSizeMs) {
+        this.entries.delete(key);
+      }
+    }
+  }
+}
 ```
 
-### Phase 3: Workflow Orchestration
+## 🔧 Type Safety Architecture
 
+### Comprehensive Type Definitions
+
+**100% type safety throughout the system:**
+
+```typescript
+// API-specific types eliminate 'any' usage
+interface GeminiResponse {
+  candidates: GeminiCandidate[];
+  promptFeedback?: GeminiPromptFeedback;
+  usageMetadata?: GeminiUsageMetadata;
+}
+
+interface ClaudeResponse {
+  id: string;
+  type: 'message';
+  role: 'assistant';
+  content: ClaudeContentBlock[];
+  model: string;
+  stop_reason: ClaudeStopReason;
+  usage: ClaudeUsage;
+}
 ```
-packages/core/src/
-├── workflows/          # Multi-step workflows
-│   ├── WorkflowEngine.ts
-│   ├── WorkflowRegistry.ts
-│   └── built-in/
-└── bridges/            # Cross-model communication
-    ├── ConversationBridge.ts
-    └── ContextManager.ts
+
+### Runtime Validation with Compile-time Safety
+
+**Zod schemas provide both:**
+
+```typescript
+export const AppConfigSchema = z.object({
+  environment: z.enum(['development', 'production', 'test']),
+  models: z.object({
+    gemini: ModelConfigSchema.optional(),
+    claude: ModelConfigSchema.optional()
+  }),
+  security: SecurityConfigSchema,
+  logging: LoggingConfigSchema
+});
+
+export type AppConfig = z.infer<typeof AppConfigSchema>;
 ```
 
-### Phase 4: Enterprise Features
+### Result Types for Error-Safe Operations
 
+**Professional error handling:**
+
+```typescript
+export type Result<T, E extends Error = Error> = 
+  | { success: true; data: T }
+  | { success: false; error: E };
+
+public static async safeAsync<T>(operation: () => Promise<T>): Promise<Result<T>> {
+  try {
+    const data = await operation();
+    return { success: true, data };
+  } catch (error) {
+    return { success: false, error: error instanceof Error ? error : new Error(String(error)) };
+  }
+}
 ```
-packages/
-├── core/               # Core functionality
-├── cli/                # CLI interface
-├── server/             # API server
-├── web/                # Web interface
-└── plugins/            # Plugin system
+
+## 🔮 Scalability Considerations
+
+### Horizontal Scaling Preparation
+
+**Stateless design enables scaling:**
+- **Configuration**: Externalized and reloadable
+- **Sessions**: Model conversations could be persisted to external store
+- **Rate Limiting**: Could be moved to Redis for distributed systems
+- **Logging**: Structured for aggregation in log management systems
+
+### Plugin Architecture Foundation
+
+**Extensibility without core modifications:**
+
+```typescript
+interface ToolPlugin {
+  name: string;
+  version: string;
+  tools: ToolConstructor[];
+  initialize(context: PluginContext): Promise<void>;
+}
+
+class PluginManager {
+  async loadPlugin(plugin: ToolPlugin): Promise<void> {
+    await plugin.initialize(this.createContext());
+    plugin.tools.forEach(Tool => {
+      this.toolRegistry.register(new Tool());
+    });
+  }
+}
 ```
 
-## 📚 Architectural References
+## 📚 Enterprise Architecture References
 
-This architecture is inspired by:
+**Inspired by production systems:**
 
-- **Gemini CLI**: Tool system and safety patterns
-- **VS Code**: Extension and contribution point patterns  
-- **ESLint**: Plugin architecture and rule registration
-- **Webpack**: Loader and plugin systems
-- **Express.js**: Middleware patterns for tool execution
+- **Kubernetes**: Configuration management and validation patterns
+- **AWS SDK**: Error handling and retry logic with exponential backoff  
+- **Istio**: Rate limiting algorithms and security policies
+- **Elasticsearch**: Structured logging and correlation IDs
+- **Spring Framework**: Dependency injection and aspect-oriented programming
+- **Microservices Patterns**: Circuit breaker, bulkhead, and timeout patterns
 
-The design emphasizes **developer experience**, **safety**, and **extensibility** while maintaining **simplicity** in the core abstractions.
+This architecture prioritizes **production readiness**, **security**, **observability**, and **maintainability** while enabling **horizontal scaling** and **extensibility** for enterprise environments.
